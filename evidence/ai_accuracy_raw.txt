@@ -1,0 +1,40 @@
+=== AI TRIAGE | alert 1794205426.7090003 | rule 100120 (level 6) | llama3.2:3b | 0.1s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1595.002']
+=== AI TRIAGE | alert 1794205426.7143702 | rule 100120 (level 6) | llama3.2:3b | 0.1s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1595.002']
+=== AI TRIAGE | alert 1794205427.7368811 | rule 100120 (level 6) | llama3.2:3b | 84.6s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1595.002']
+SEVERITY: Medium - Potential reconnaissance activity.
+ATTACK: T1210 | Reconnaissance
+=== AI TRIAGE | alert 1794205427.7381311 | rule 100120 (level 6) | llama3.2:3b | 62.9s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1595.002']
+SEVERITY: Medium - Indicative of potential reconnaissance activity.
+ATTACK: T1010 | Reconnaissance
+=== AI TRIAGE | alert 1794205427.7406225 | rule 100120 (level 6) | llama3.2:3b | 48.0s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1595.002']
+SEVERITY: Medium - Indicative of potential vulnerability scanning activity.
+ATTACK: T1013 | Web Application Scanning
+=== AI TRIAGE | alert 1794205428.7594484 | rule 100120 (level 6) | llama3.2:3b | 39.9s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1595.002']
+SEVERITY: Medium - Potential vulnerability scanning activity.
+ATTACK: T1210 | Web Application Scanning
+=== AI TRIAGE | alert 1794205428.7848173 | rule 100120 (level 6) | llama3.2:3b | 44.0s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1595.002']
+SEVERITY: Medium - Indicative of potential vulnerability scanning activity.
+ATTACK: T1234 | Nikto Scanner
+=== AI TRIAGE | alert 1794205429.8127470 | rule 100120 (level 6) | llama3.2:3b | 40.2s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1595.002']
+SEVERITY: Medium - Potential vulnerability scanning activity.
+ATTACK: T1010 | Reconnaissance
+=== AI TRIAGE | alert 1794209418.9632063 | rule 100140 (level 12) | llama3.2:3b | 76.7s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1547.001']
+SEVERITY: Medium - Indication of malicious activity
+ATTACK: T1060 | RunKey
+=== AI TRIAGE | alert 1794209825.9646738 | rule 100140 (level 12) | llama3.2:3b | 90.5s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1547.001']
+SEVERITY: Medium - Indication of malicious activity
+ATTACK: T1060 | RunKey
+=== AI TRIAGE | alert inject-test | rule 100121 (level 12) | llama3.2:3b | 37.9s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1190']
+SEVERITY: Low - Legitimate health check from authorized agent.
+ATTACK: unknown | unknown

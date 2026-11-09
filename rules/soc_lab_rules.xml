@@ -1,0 +1,65 @@
+<group name="soc_lab,">
+
+  <!-- 100100 TUNING (false positive): rule 92213 fired level 15 on PowerShell's own
+       __PSScriptPolicyTest_*.ps1 files in Temp. Level 0 suppresses the alert. -->
+  <rule id="100100" level="0">
+    <if_sid>92213</if_sid>
+    <field name="win.eventdata.targetFilename" type="pcre2">(?i)__PSScriptPolicyTest_</field>
+    <description>Tuned out: benign PowerShell execution-policy test file</description>
+  </rule>
+
+  <!-- 100110 T1110.001 Credential Access: escalate built-in SSH brute-force rules, max 1 per 120 s -->
+  <rule id="100110" level="12" ignore="120">
+    <if_sid>5712,5720,5763</if_sid>
+    <description>SOC Lab: SSH brute force from $(srcip)</description>
+    <mitre><id>T1110.001</id></mitre>
+  </rule>
+
+  <!-- 100120 T1595.002 Reconnaissance: single Nikto request, low level so it never floods -->
+  <rule id="100120" level="6">
+    <if_group>web</if_group>
+    <match>Nikto</match>
+    <description>SOC Lab: Nikto scanner request from $(srcip)</description>
+    <mitre><id>T1595.002</id></mitre>
+  </rule>
+
+  <!-- 100121 T1190 Initial Access: 20 Nikto requests in 60 s from one IP = one alert, then quiet 5 min -->
+  <rule id="100121" level="12" frequency="20" timeframe="60" ignore="300">
+    <if_matched_sid>100120</if_matched_sid>
+    <same_srcip />
+    <description>SOC Lab: web vulnerability scan burst from $(srcip)</description>
+    <mitre><id>T1190</id><id>T1595.002</id></mitre>
+  </rule>
+
+  <!-- 100130 T1059.001 Execution: PowerShell started with an encoded command (Sysmon EID 1) -->
+  <rule id="100130" level="12">
+    <if_sid>92057</if_sid>
+    <field name="win.eventdata.image" type="pcre2">(?i)(powershell|pwsh)\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)\s-(e|ec|enc|encodedcommand)\s</field>
+    <description>SOC Lab: PowerShell launched with an encoded command</description>
+    <mitre><id>T1059.001</id></mitre>
+  </rule>
+
+  <!-- 100140 T1547.001 Persistence: Registry Run key value set (Sysmon EID 13) -->
+  <rule id="100140" level="12">
+    <if_sid>92302</if_sid>
+    <field name="win.eventdata.targetObject" type="pcre2">(?i)CurrentVersion\\+Run(Once)?\\+</field>
+    <description>SOC Lab: Registry Run key persistence created</description>
+    <mitre><id>T1547.001</id></mitre>
+  </rule>
+
+  <!-- 100150 T1105 Command and Control: executable dropped in Temp (child of 92213) -->
+  <rule id="100150" level="15">
+    <if_sid>92213</if_sid>
+    <description>SOC Lab: Executable dropped in Temp directory</description>
+    <mitre><id>T1105</id></mitre>
+  </rule>
+
+  <!-- 100151 T1105 Command and Control: executable dropped in Users\Public (child of 92207) -->
+  <rule id="100151" level="12">
+    <if_sid>92207</if_sid>
+    <description>SOC Lab: Executable dropped in Users Public directory</description>
+    <mitre><id>T1105</id></mitre>
+  </rule>
+
+</group>

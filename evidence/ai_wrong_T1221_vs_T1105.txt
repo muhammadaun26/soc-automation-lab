@@ -1,0 +1,16 @@
+=== AI TRIAGE | alert test-1 | rule 92213 (level 15) | llama3.2:3b | 39.5s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1105']
+SUMMARY: A Windows executable file was dropped in a folder commonly used by malware on the WindowsVm agent, indicating potential malicious activity.
+
+SEVERITY: Medium - Suspicious activity detected.
+
+ATTACK: T1221 | File and Directory Manipulation
+NEXT STEPS:
+1. Verify the integrity of the WindowsVm agent and its associated logs to ensure no other suspicious activity is missed.
+2. Investigate the dropped executable file to determine its origin, purpose, and potential impact on the system.
+3. Isolate the affected folder and system to prevent further potential malicious activity.
+
+CONFIDENCE: Medium
+
+=== AI TRIAGE | alert test-1 | rule 92213 (level 15) | llama3.2:3b | 42.5s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1105']

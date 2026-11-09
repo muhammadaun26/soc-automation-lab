@@ -1,0 +1,14 @@
+CONFIDENCE: Medium
+
+=== AI TRIAGE | alert inject-test | rule 100121 (level 12) | llama3.2:3b | 37.9s ===
+Wazuh ATT&CK (ground truth, not shown to AI): ['T1190']
+SUMMARY: The alert indicates a web vulnerability scan burst detected by the UbuntuWeb agent, which is a legitimate health check, and no malicious activity is reported.
+
+SEVERITY: Low - Legitimate health check from authorized agent.
+
+ATTACK: unknown | unknown
+
+NEXT STEPS:
+1. Verify the legitimacy of the health check by checking the agent's configuration and permissions.
+2. Check the IP address of the source IP (192.168.0.105) to ensure it is not a known malicious IP address.
+3. Review the UbuntuWeb agent's logs to ensure it is functioning correctly and not reporting false positives.

@@ -1,0 +1,372 @@
+{
+  "name": "n8n_playbook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wazuh-alert",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        32,
+        16
+      ],
+      "id": "436a9b90-8518-4858-80c5-e289832fdf88",
+      "name": "Webhook",
+      "webhookId": "7c7bc768-d612-4d1b-9ecb-09af310a2c43"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d0dabda6-1ed0-4c60-b5e8-11bf9f4bec51",
+              "name": "attacker_ip",
+              "value": "={{ $('Webhook').item.json.body.all_fields.data.srcip }}",
+              "type": "string"
+            },
+            {
+              "id": "63e50142-a57a-401d-ba7e-01910b82a16b",
+              "name": "lookup_ip",
+              "value": "={{ /^(10\\.|192\\.168\\.|172\\.(1[6-9]|2\\d|3[01])\\.)/.test($('Webhook').item.json.body.all_fields.data.srcip) ? '141.105.71.82' : $('Webhook').item.json.body.all_fields.data.srcip }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        480,
+        -80
+      ],
+      "id": "7160b80c-d0c6-4d5f-84ba-3d8562bdf782",
+      "name": "Lab TI lookup"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "a15a3da2-6956-46f5-9a53-79fa9121e271",
+              "leftValue": "={{ $('Webhook').item.json.body.all_fields.data?.srcip ?? '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        256,
+        16
+      ],
+      "id": "fef58317-d5db-4ff3-9c2c-f5c112bb9bf1",
+      "name": "Has source IP"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=SECURITY ALERT\nTime: {{ $('Webhook').item.json.body.timestamp }}\nEvent: {{ $('Webhook').item.json.body.title }} (rule {{ $('Webhook').item.json.body.rule_id }}, level {{ $('Webhook').item.json.body.all_fields.rule.level }})\nHost: {{ $('Webhook').item.json.body.all_fields.agent.name }} ({{ $('Webhook').item.json.body.all_fields.agent.ip }})\nATT&CK: {{ $('Webhook').item.json.body.all_fields.rule.mitre?.id?.join(', ') ?? 'none' }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        512,
+        256
+      ],
+      "id": "09585c9b-a4e7-4ffe-b9c7-9d669d0558c9",
+      "name": "Discord Activity",
+      "webhookId": "8aa2e707-5d80-40db-9d9f-1f63157c362b",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "D34R4Wa5hY4WHakh",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.virustotal.com/api/v3/ip_addresses/{{ $json.lookup_ip }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        704,
+        -80
+      ],
+      "id": "fde69ec7-5150-4658-8664-6d26ed0e1239",
+      "name": "VirusTotal",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Xm6ZAwyxT3GctNPe",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "731ba83b-e267-429b-9908-c3218ed4e322",
+              "leftValue": "={{ $json.data.attributes.last_analysis_stats.malicious }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        848,
+        144
+      ],
+      "id": "8111dc00-6f78-4f26-93d2-85d5ee37846b",
+      "name": "High confidence"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://192.168.0.100:55000/security/user/authenticate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1136,
+        -80
+      ],
+      "id": "9f229852-3cd1-4561-a988-fe8751bcdd07",
+      "name": "Wazuh auth",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "reRF8tSvhzFo4wF1",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://192.168.0.100:55000/active-response?agents_list=002",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.data.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"command\":\"!firewall-drop\",\"arguments\":[],\"alert\":{\"data\":{\"srcip\":\"{{ $('Lab TI lookup').item.json.attacker_ip }}\"}}}",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1328,
+        80
+      ],
+      "id": "3265ebd5-4204-4bb9-9826-e487ee7de752",
+      "name": "Block on Linux host"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=NOT BLOCKED (below threshold)\nAttacker: {{ $('Lab TI lookup').item.json.attacker_ip }}\nVirusTotal malicious count: {{ $('VirusTotal').item.json.data.attributes.last_analysis_stats.malicious }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        288
+      ],
+      "id": "32a45410-ce58-43da-a271-79734a4ca199",
+      "name": "Discord Not Blocked",
+      "webhookId": "78cab1c0-812b-4919-bc06-e45cbf64340e",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "txIyhgIG703uPpqs",
+          "name": "Discord Webhook account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=FIREWALL BLOCK EXECUTED\nTime: {{ $('Webhook').item.json.body.timestamp }}\nAlert: {{ $('Webhook').item.json.body.title }}\nAttacker (blocked): {{ $('Lab TI lookup').item.json.attacker_ip }}\nVirusTotal on {{ $('Lab TI lookup').item.json.lookup_ip }}: {{ $('VirusTotal').item.json.data.attributes.last_analysis_stats.malicious }} malicious",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        272
+      ],
+      "id": "2cbf3ee1-9b9f-4606-901a-0b6bfbd02a4e",
+      "name": "Discord Block",
+      "webhookId": "5a03dde4-a33f-4681-a2c8-d98a8399d419",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "txIyhgIG703uPpqs",
+          "name": "Discord Webhook account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Has source IP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lab TI lookup": {
+      "main": [
+        [
+          {
+            "node": "VirusTotal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has source IP": {
+      "main": [
+        [
+          {
+            "node": "Lab TI lookup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discord Activity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord Activity": {
+      "main": [
+        []
+      ]
+    },
+    "High confidence": {
+      "main": [
+        [
+          {
+            "node": "Wazuh auth",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discord Not Blocked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VirusTotal": {
+      "main": [
+        [
+          {
+            "node": "High confidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wazuh auth": {
+      "main": [
+        [
+          {
+            "node": "Block on Linux host",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Block on Linux host": {
+      "main": [
+        [
+          {
+            "node": "Discord Block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a42c244c-b42b-4cb0-9cf9-50f3b9e95d0b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "24f61056669ed2d5fa7ae4a3bb9688e972e7c7754a5142989e08667a62e859a4"
+  },
+  "nodeGroups": [],
+  "id": "sLYAPQEVHE3ygmUT",
+  "tags": []
+}
